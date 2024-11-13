@@ -1,0 +1,71 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.dropDown {
+  overflow: hidden;
+  color: '[theme:bodyText, default: #323130]';
+  color: var(--bodyText);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1px;
+  transition: all;
+  opacity: 1;
+  animation: clickDownReverse 200ms ease-out forwards;
+  ::before {
+    opacity: 0;
+  }
+}
+
+.rotateIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1px;
+  transition: all;
+  opacity: 1;
+  animation: clickDown 200ms ease-in forwards;
+  ::before {
+    opacity: 0;
+  }
+}
+
+@keyframes clickDown {
+  0% {
+    transform: rotateZ(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateZ(180deg) rotateY(180deg);
+  }
+}
+
+@keyframes clickDownReverse {
+  0% {
+    transform: rotateZ(180deg) rotateY(180deg);
+  }
+  100% {
+    transform: rotateZ(0deg) rotateY(0deg);
+  }
+}
+
+.label {
+  display: flex;
+}
+
+.content {
+  display: flex;
+}
+
+.dropDownController {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: pointer;
+  flex-direction: row;
+}

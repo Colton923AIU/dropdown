@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "drop-down-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/dropDown/DropDownWebPart.js",
+          "manifest": "./src/webparts/dropDown/DropDownWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "DropDownWebPartStrings": "lib/webparts/dropDown/loc/{locale}.js",
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "dropdown-client-side-solution",
+    "id": "92471724-66e3-4267-82bc-4fe6ec2bb941",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "dropdown description"
+      },
+      "longDescription": {
+        "default": "dropdown description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "dropdown Feature",
+        "description": "The feature that activates elements of the dropdown solution.",
+        "id": "9ce62d15-d005-414d-ad4b-03e283e5df36",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/dropdown_v02.sppkg"
+  }
+}
