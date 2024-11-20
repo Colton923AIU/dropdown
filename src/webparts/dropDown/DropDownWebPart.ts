@@ -2,16 +2,19 @@ import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import {
-  type IPropertyPaneConfiguration,
+  IPropertyPaneConfiguration,
   PropertyPaneChoiceGroup,
   PropertyPaneTextField,
 } from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
+import {
+  BaseClientSideWebPart,
+  IWebPartPropertiesMetadata,
+} from '@microsoft/sp-webpart-base';
 
 import * as strings from 'DropDownWebPartStrings';
 import DropDown from './components/DropDown';
 import { IDropDownProps } from './components/IDropDownProps';
-import { GlobalStateService } from './context/GlobalStateService';
+import { DynamicProperty } from '@microsoft/sp-component-base';
 
 export interface IDropDownWebPartProps {
   innerHTML: string;
@@ -28,15 +31,11 @@ export interface IDropDownWebPartProps {
   iconMargin: string;
   iconSize: string;
   filterNames: string;
+  filterState: DynamicProperty<{ [key: string]: boolean }>;
 }
 
 export default class DropDownWebPart extends BaseClientSideWebPart<IDropDownWebPartProps> {
-  private globalStateService: GlobalStateService;
-
   protected onInit(): Promise<void> {
-    this.globalStateService = this.context.serviceScope.consume(
-      GlobalStateService.serviceKey
-    );
     return super.onInit();
   }
 
@@ -44,7 +43,7 @@ export default class DropDownWebPart extends BaseClientSideWebPart<IDropDownWebP
     const element: React.ReactElement<IDropDownProps> = React.createElement(
       DropDown,
       {
-        innerHTML: this.properties.innerHTML,
+        innerHTML: this.properties.innerHTML ?? '',
         dropdownLabelColor: this.properties.dropdownLabelColor,
         dropdownLabelSize: this.properties.dropdownLabelSize,
         dropdownLabel: this.properties.dropdownLabel,
@@ -57,12 +56,18 @@ export default class DropDownWebPart extends BaseClientSideWebPart<IDropDownWebP
         margin: this.properties.margin,
         iconMargin: this.properties.iconMargin,
         iconSize: this.properties.iconSize,
-        filterNames: this.properties.filterNames,
-        globalStateService: this.globalStateService,
       }
     );
 
     ReactDom.render(element, this.domElement);
+  }
+
+  protected get propertiesMetadata(): IWebPartPropertiesMetadata {
+    return {
+      filterState: {
+        dynamicPropertyType: 'object',
+      },
+    };
   }
 
   protected onDispose(): void {
@@ -217,7 +222,7 @@ export default class DropDownWebPart extends BaseClientSideWebPart<IDropDownWebP
                   label: 'Inner HTML',
                   multiline: true,
                   resizable: true,
-                  value: `# Markdown Example with Link
+                  placeholder: `# Markdown Example with Link
 
 This is an example of markdown text that includes a link to a SharePoint site.
 
@@ -230,6 +235,7 @@ Visit our SharePoint site for more information: [Live Career Ed](https://www.liv
                 }),
                 PropertyPaneTextField('filterNames', {
                   label: 'Filter Icon Names (comma separated)',
+                  placeholder: 'mil, aius',
                 }),
               ],
             },
@@ -237,5 +243,12 @@ Visit our SharePoint site for more information: [Live Career Ed](https://www.liv
         },
       ],
     };
+  }
+
+  protected get disableReactivePropertyChanges(): boolean {
+    // set property changes mode to reactive, so that the Bing Maps API is not
+    // called on each keystroke when typing in the address to show on the map
+    // in web part properties
+    return true;
   }
 }

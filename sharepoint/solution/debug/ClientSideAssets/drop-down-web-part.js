@@ -149,9 +149,20 @@ var styles = {
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ 650);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _DropDown_module_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DropDown.module.scss */ 60);
-/* harmony import */ var marked__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! marked */ 177);
-/* harmony import */ var _components_Intersection_Intersection__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../components/Intersection/Intersection */ 946);
-/* harmony import */ var _components_Chevron_Chevron__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../components/Chevron/Chevron */ 970);
+/* harmony import */ var _components_Intersection_Intersection__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../components/Intersection/Intersection */ 946);
+/* harmony import */ var _components_Chevron_Chevron__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../components/Chevron/Chevron */ 970);
+/* harmony import */ var marked__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! marked */ 177);
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -194,49 +205,74 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 var DropDown = function (props) {
-    var dropdownLabel = props.dropdownLabel, dropdownLabelColor = props.dropdownLabelColor, dropdownLabelSize = props.dropdownLabelSize, innerHTML = props.innerHTML, backgroundColor = props.backgroundColor, iconPosition = props.iconPosition, margin = props.margin, padding = props.padding, iconMargin = props.iconMargin, iconSize = props.iconSize, dropdownLabelFontWeight = props.dropdownLabelFontWeight, dropdownLabelMargin = props.dropdownLabelMargin, dropdownLabelPadding = props.dropdownLabelPadding, filterNames = props.filterNames, globalStateService = props.globalStateService;
-    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(''), goodHTML = _a[0], setGoodHTML = _a[1];
-    var _b = react__WEBPACK_IMPORTED_MODULE_0__.useState(false), clicked = _b[0], setClicked = _b[1];
-    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
-        var handleStateChange = function (newState, filterName) {
-            console.log('handling filtered state change: ', 'newState: ', newState, 'filterName: ', filterName);
-            var filterTagContent = new RegExp("<!--\\s*<".concat(filterName, ">\\s*-->([\\s\\S]*?)<!--\\s*</").concat(filterName, ">\\s*-->"), 'g');
-            var updatedHTML = goodHTML;
-            if (newState) {
-                // Show content inside filter tags by removing the tags and retaining only the inner content
-                updatedHTML = updatedHTML.replace(filterTagContent, '$1');
+    var dropdownLabel = props.dropdownLabel, dropdownLabelColor = props.dropdownLabelColor, dropdownLabelSize = props.dropdownLabelSize, backgroundColor = props.backgroundColor, iconPosition = props.iconPosition, margin = props.margin, padding = props.padding, iconMargin = props.iconMargin, iconSize = props.iconSize, dropdownLabelFontWeight = props.dropdownLabelFontWeight, dropdownLabelMargin = props.dropdownLabelMargin, dropdownLabelPadding = props.dropdownLabelPadding, innerHTML = props.innerHTML;
+    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(false), clicked = _a[0], setClicked = _a[1];
+    var _b = react__WEBPACK_IMPORTED_MODULE_0__.useState(''), editedHTML = _b[0], setEditedHTML = _b[1];
+    var _c = react__WEBPACK_IMPORTED_MODULE_0__.useState({}), filterState = _c[0], setFilterState = _c[1];
+    var markHTML = function (html) { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0,marked__WEBPACK_IMPORTED_MODULE_4__.marked)(html)];
+                case 1:
+                    res = _a.sent();
+                    setEditedHTML(res); // Update the state with the modified HTML
+                    return [2 /*return*/];
+            }
+        });
+    }); };
+    var updateHTML = function (filter) {
+        var html = innerHTML; // Start with the original HTML
+        // Loop through all the filters and process the HTML accordingly
+        Object.keys(filter).forEach(function (key) {
+            var filterTagRegex = new RegExp("(<".concat(key, "[^>]*>)([\\s\\S]*?)(</").concat(key, ">)"), // Capture elements, excluding comments
+            'g');
+            if (filter[key]) {
+                // Show content: Keep the element and its content
+                html = html.replace(filterTagRegex, '$1$2$3');
             }
             else {
-                // Hide content by adding the comment syntax back around the filter tags
-                updatedHTML = updatedHTML
-                    .replace(new RegExp("<".concat(filterName, ">"), 'g'), "<!-- <".concat(filterName, ">"))
-                    .replace(new RegExp("</".concat(filterName, ">"), 'g'), "</".concat(filterName, "> -->"));
+                // Hide content: Remove the element and its content
+                html = html.replace(filterTagRegex, '');
             }
-            setGoodHTML(updatedHTML);
-        };
-        // Subscribe to each filter's state change
-        filterNames.split(',').forEach(function (filter) {
-            console.log('subscribing filter: ', filter.trim());
-            globalStateService.subscribe(filter.trim(), function (newState) {
-                return handleStateChange(newState, filter.trim());
-            });
         });
-        var setHTMLContent = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0,marked__WEBPACK_IMPORTED_MODULE_2__.marked)(innerHTML || '')];
-                    case 1:
-                        result = _a.sent();
-                        setGoodHTML(result);
-                        return [2 /*return*/];
-                }
-            });
-        }); };
-        setHTMLContent();
-    }, [innerHTML, filterNames, globalStateService]);
-    var fontWeight = function (dropdownLabelFontWeight) {
-        switch (dropdownLabelFontWeight) {
+        void markHTML(html); // Call markHTML to process the HTML content
+    };
+    // Function to update filter state and innerHTML
+    var handleFilterStateChange = function (filterName) {
+        if (!filterName)
+            return; // Skip if filterName is undefined
+        setFilterState(function (prevState) {
+            var _a, _b;
+            if (prevState[filterName] !== undefined) {
+                var newFilterState = __assign(__assign({}, prevState), (_a = {}, _a[filterName] = !prevState[filterName], _a));
+                updateHTML(newFilterState);
+                return newFilterState;
+            }
+            else {
+                var newFilterState = __assign(__assign({}, prevState), (_b = {}, _b[filterName] = true, _b));
+                return newFilterState;
+            }
+        });
+    };
+    // Event handler for filter toggling
+    var onFilterToggled = function (event) {
+        var filterName = event.detail.filterName;
+        handleFilterStateChange(filterName);
+    };
+    // Register the `filterToggled` event listener
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        console.log('filterState: ', filterState);
+        if (editedHTML === '') {
+            void markHTML(innerHTML);
+        }
+        window.addEventListener('filterToggled', onFilterToggled);
+        return function () {
+            window.removeEventListener('filterToggled', onFilterToggled);
+        };
+    }, [innerHTML]);
+    var fontWeight = function (weight) {
+        switch (weight) {
             case 'lighter':
                 return 200;
             case 'light':
@@ -258,11 +294,9 @@ var DropDown = function (props) {
         } },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: _DropDown_module_scss__WEBPACK_IMPORTED_MODULE_1__["default"].dropDownController, style: {
                 flexDirection: iconPosition === 'Left' ? 'row' : 'row-reverse',
-            }, onClick: function () {
-                setClicked(!clicked);
-            } },
+            }, onClick: function () { return setClicked(!clicked); } },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: clicked ? _DropDown_module_scss__WEBPACK_IMPORTED_MODULE_1__["default"].rotateIcon : _DropDown_module_scss__WEBPACK_IMPORTED_MODULE_1__["default"].icon },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_Chevron_Chevron__WEBPACK_IMPORTED_MODULE_4__["default"], { iconMargin: iconMargin, iconWidth: iconSize, iconHeight: iconSize })),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_Chevron_Chevron__WEBPACK_IMPORTED_MODULE_3__["default"], { iconMargin: iconMargin, iconWidth: iconSize, iconHeight: iconSize })),
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: _DropDown_module_scss__WEBPACK_IMPORTED_MODULE_1__["default"].label, style: {
                     color: dropdownLabelColor || 'black',
                     fontSize: dropdownLabelSize || '20px',
@@ -270,9 +304,9 @@ var DropDown = function (props) {
                     margin: dropdownLabelMargin,
                     padding: dropdownLabelPadding,
                 } }, dropdownLabel)),
-        clicked ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_Intersection_Intersection__WEBPACK_IMPORTED_MODULE_3__["default"], null,
+        clicked ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_Intersection_Intersection__WEBPACK_IMPORTED_MODULE_2__["default"], null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: _DropDown_module_scss__WEBPACK_IMPORTED_MODULE_1__["default"].content },
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { dangerouslySetInnerHTML: { __html: goodHTML } })))) : null));
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { dangerouslySetInnerHTML: { __html: editedHTML }, key: editedHTML })))) : null));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DropDown);
 
@@ -302,56 +336,6 @@ var styles = {
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (styles);
 /* tslint:enable */ 
-
-
-/***/ }),
-
-/***/ 287:
-/*!*************************************************************!*\
-  !*** ./lib/webparts/dropDown/context/GlobalStateService.js ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   GlobalStateService: () => (/* binding */ GlobalStateService)
-/* harmony export */ });
-/* harmony import */ var _microsoft_sp_core_library__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @microsoft/sp-core-library */ 878);
-/* harmony import */ var _microsoft_sp_core_library__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_microsoft_sp_core_library__WEBPACK_IMPORTED_MODULE_0__);
-
-var GlobalStateService = /** @class */ (function () {
-    function GlobalStateService(serviceScope) {
-        // Store states by name (e.g., "Military" => true/false)
-        this.states = {};
-        this.subscribers = {};
-    }
-    // Get the state for a specific filter name
-    GlobalStateService.prototype.getState = function (name) {
-        return this.states[name] || false; // Default to false if not defined
-    };
-    // Toggle the state for a specific filter name
-    GlobalStateService.prototype.toggleState = function (name) {
-        this.states[name] = !this.states[name];
-        this.notifySubscribers(name);
-    };
-    // Subscribe to state changes for a specific filter name
-    GlobalStateService.prototype.subscribe = function (name, callback) {
-        if (!this.subscribers[name]) {
-            this.subscribers[name] = [];
-        }
-        this.subscribers[name].push(callback);
-    };
-    // Notify subscribers of a state change for a specific filter name
-    GlobalStateService.prototype.notifySubscribers = function (name) {
-        var _this = this;
-        var callbacks = this.subscribers[name];
-        if (callbacks) {
-            callbacks.forEach(function (callback) { return callback(_this.states[name]); });
-        }
-    };
-    GlobalStateService.serviceKey = _microsoft_sp_core_library__WEBPACK_IMPORTED_MODULE_0__.ServiceKey.create('filter-icon:GlobalStateService', GlobalStateService);
-    return GlobalStateService;
-}());
-
 
 
 /***/ }),
@@ -3344,7 +3328,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var DropDownWebPartStrings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! DropDownWebPartStrings */ 632);
 /* harmony import */ var DropDownWebPartStrings__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(DropDownWebPartStrings__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _components_DropDown__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/DropDown */ 466);
-/* harmony import */ var _context_GlobalStateService__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./context/GlobalStateService */ 287);
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -3367,19 +3350,18 @@ var __extends = (undefined && undefined.__extends) || (function () {
 
 
 
-
 var DropDownWebPart = /** @class */ (function (_super) {
     __extends(DropDownWebPart, _super);
     function DropDownWebPart() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     DropDownWebPart.prototype.onInit = function () {
-        this.globalStateService = this.context.serviceScope.consume(_context_GlobalStateService__WEBPACK_IMPORTED_MODULE_7__.GlobalStateService.serviceKey);
         return _super.prototype.onInit.call(this);
     };
     DropDownWebPart.prototype.render = function () {
+        var _a;
         var element = react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_DropDown__WEBPACK_IMPORTED_MODULE_6__["default"], {
-            innerHTML: this.properties.innerHTML,
+            innerHTML: (_a = this.properties.innerHTML) !== null && _a !== void 0 ? _a : '',
             dropdownLabelColor: this.properties.dropdownLabelColor,
             dropdownLabelSize: this.properties.dropdownLabelSize,
             dropdownLabel: this.properties.dropdownLabel,
@@ -3392,11 +3374,20 @@ var DropDownWebPart = /** @class */ (function (_super) {
             margin: this.properties.margin,
             iconMargin: this.properties.iconMargin,
             iconSize: this.properties.iconSize,
-            filterNames: this.properties.filterNames,
-            globalStateService: this.globalStateService,
         });
         react_dom__WEBPACK_IMPORTED_MODULE_1__.render(element, this.domElement);
     };
+    Object.defineProperty(DropDownWebPart.prototype, "propertiesMetadata", {
+        get: function () {
+            return {
+                filterState: {
+                    dynamicPropertyType: 'object',
+                },
+            };
+        },
+        enumerable: false,
+        configurable: true
+    });
     DropDownWebPart.prototype.onDispose = function () {
         react_dom__WEBPACK_IMPORTED_MODULE_1__.unmountComponentAtNode(this.domElement);
     };
@@ -3550,10 +3541,11 @@ var DropDownWebPart = /** @class */ (function (_super) {
                                     label: 'Inner HTML',
                                     multiline: true,
                                     resizable: true,
-                                    value: "# Markdown Example with Link\n\nThis is an example of markdown text that includes a link to a SharePoint site.\n\nVisit our SharePoint site for more information: [Live Career Ed](https://www.livecareered.sharepoint.com)\n\n## Additional Content\n\n- **Bold text**\n- _Italic text_",
+                                    placeholder: "# Markdown Example with Link\n\nThis is an example of markdown text that includes a link to a SharePoint site.\n\nVisit our SharePoint site for more information: [Live Career Ed](https://www.livecareered.sharepoint.com)\n\n## Additional Content\n\n- **Bold text**\n- _Italic text_",
                                 }),
                                 (0,_microsoft_sp_property_pane__WEBPACK_IMPORTED_MODULE_3__.PropertyPaneTextField)('filterNames', {
                                     label: 'Filter Icon Names (comma separated)',
+                                    placeholder: 'mil, aius',
                                 }),
                             ],
                         },
@@ -3562,6 +3554,16 @@ var DropDownWebPart = /** @class */ (function (_super) {
             ],
         };
     };
+    Object.defineProperty(DropDownWebPart.prototype, "disableReactivePropertyChanges", {
+        get: function () {
+            // set property changes mode to reactive, so that the Bing Maps API is not
+            // called on each keystroke when typing in the address to show on the map
+            // in web part properties
+            return true;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return DropDownWebPart;
 }(_microsoft_sp_webpart_base__WEBPACK_IMPORTED_MODULE_4__.BaseClientSideWebPart));
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DropDownWebPart);

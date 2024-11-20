@@ -1,5 +1,3 @@
-import { GlobalStateService } from '../context/GlobalStateService';
-
 export interface IDropDownProps {
   innerHTML: string;
   dropdownLabelColor: string;
@@ -14,6 +12,4 @@ export interface IDropDownProps {
   margin: string;
   iconMargin: string;
   iconSize: string;
-  filterNames: string;
-  globalStateService: GlobalStateService;
 }

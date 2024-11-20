@@ -1,16 +1,14 @@
 import * as React from 'react';
 import styles from './DropDown.module.scss';
 import type { IDropDownProps } from './IDropDownProps';
-import { marked } from 'marked';
 import Intersection from '../../../components/Intersection/Intersection';
 import Chevron from '../../../components/Chevron/Chevron';
-
+import { marked } from 'marked';
 const DropDown: React.FC<IDropDownProps> = props => {
   const {
     dropdownLabel,
     dropdownLabelColor,
     dropdownLabelSize,
-    innerHTML,
     backgroundColor,
     iconPosition,
     margin,
@@ -20,60 +18,82 @@ const DropDown: React.FC<IDropDownProps> = props => {
     dropdownLabelFontWeight,
     dropdownLabelMargin,
     dropdownLabelPadding,
-    filterNames,
-    globalStateService,
+    innerHTML,
   } = props;
 
-  const [goodHTML, setGoodHTML] = React.useState<string>('');
   const [clicked, setClicked] = React.useState<boolean>(false);
+  const [editedHTML, setEditedHTML] = React.useState<string>('');
+  const [filterState, setFilterState] = React.useState<Record<string, boolean>>(
+    {}
+  );
 
-  React.useEffect(() => {
-    const handleStateChange = (newState: boolean, filterName: string) => {
-      console.log(
-        'handling filtered state change: ',
-        'newState: ',
-        newState,
-        'filterName: ',
-        filterName
-      );
-      const filterTagContent = new RegExp(
-        `<!--\\s*<${filterName}>\\s*-->([\\s\\S]*?)<!--\\s*</${filterName}>\\s*-->`,
+  const markHTML = async (html: string) => {
+    const res = await marked(html);
+    setEditedHTML(res); // Update the state with the modified HTML
+  };
+
+  const updateHTML = (filter: Record<string, boolean>) => {
+    let html = innerHTML; // Start with the original HTML
+
+    // Loop through all the filters and process the HTML accordingly
+    Object.keys(filter).forEach(key => {
+      const filterTagRegex = new RegExp(
+        `(<${key}[^>]*>)([\\s\\S]*?)(</${key}>)`, // Capture elements, excluding comments
         'g'
       );
 
-      let updatedHTML = goodHTML;
-
-      if (newState) {
-        // Show content inside filter tags by removing the tags and retaining only the inner content
-        updatedHTML = updatedHTML.replace(filterTagContent, '$1');
+      if (filter[key]) {
+        // Show content: Keep the element and its content
+        html = html.replace(filterTagRegex, '$1$2$3');
       } else {
-        // Hide content by adding the comment syntax back around the filter tags
-        updatedHTML = updatedHTML
-          .replace(new RegExp(`<${filterName}>`, 'g'), `<!-- <${filterName}>`)
-          .replace(new RegExp(`</${filterName}>`, 'g'), `</${filterName}> -->`);
+        // Hide content: Remove the element and its content
+        html = html.replace(filterTagRegex, '');
       }
-
-      setGoodHTML(updatedHTML);
-    };
-
-    // Subscribe to each filter's state change
-    filterNames.split(',').forEach(filter => {
-      console.log('subscribing filter: ', filter.trim());
-      globalStateService.subscribe(filter.trim(), newState =>
-        handleStateChange(newState, filter.trim())
-      );
     });
 
-    const setHTMLContent = async () => {
-      const result = await marked(innerHTML || '');
-      setGoodHTML(result);
+    void markHTML(html); // Call markHTML to process the HTML content
+  };
+
+  // Function to update filter state and innerHTML
+  const handleFilterStateChange = (filterName: string) => {
+    if (!filterName) return; // Skip if filterName is undefined
+    setFilterState(prevState => {
+      if (prevState[filterName] !== undefined) {
+        const newFilterState = {
+          ...prevState,
+          [filterName]: !prevState[filterName],
+        };
+        updateHTML(newFilterState);
+        return newFilterState;
+      } else {
+        const newFilterState = {
+          ...prevState,
+          [filterName]: true,
+        };
+        return newFilterState;
+      }
+    });
+  };
+  // Event handler for filter toggling
+  const onFilterToggled = (event: any) => {
+    const filterName = event.detail.filterName;
+    handleFilterStateChange(filterName);
+  };
+
+  // Register the `filterToggled` event listener
+  React.useEffect(() => {
+    console.log('filterState: ', filterState);
+    if (editedHTML === '') {
+      void markHTML(innerHTML);
+    }
+    window.addEventListener('filterToggled', onFilterToggled);
+    return () => {
+      window.removeEventListener('filterToggled', onFilterToggled);
     };
+  }, [innerHTML]);
 
-    setHTMLContent();
-  }, [innerHTML, filterNames, globalStateService]);
-
-  const fontWeight = (dropdownLabelFontWeight: string) => {
-    switch (dropdownLabelFontWeight) {
+  const fontWeight = (weight: string) => {
+    switch (weight) {
       case 'lighter':
         return 200;
       case 'light':
@@ -104,9 +124,7 @@ const DropDown: React.FC<IDropDownProps> = props => {
         style={{
           flexDirection: iconPosition === 'Left' ? 'row' : 'row-reverse',
         }}
-        onClick={() => {
-          setClicked(!clicked);
-        }}
+        onClick={() => setClicked(!clicked)}
       >
         <div className={clicked ? styles.rotateIcon : styles.icon}>
           <Chevron
@@ -131,7 +149,10 @@ const DropDown: React.FC<IDropDownProps> = props => {
       {clicked ? (
         <Intersection>
           <div className={styles.content}>
-            <div dangerouslySetInnerHTML={{ __html: goodHTML }} />
+            <div
+              dangerouslySetInnerHTML={{ __html: editedHTML }}
+              key={editedHTML}
+            />
           </div>
         </Intersection>
       ) : null}
